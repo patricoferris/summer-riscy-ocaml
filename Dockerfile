@@ -5,6 +5,7 @@ RUN apt-get install -y curl git make gcc g++ autoconf automake autotools-dev
 RUN apt-get install -y libmpc-dev libmpfr-dev libgmp-dev libusb-1.0-0-dev
 RUN apt-get install -y gawk build-essential bison flex texinfo gperf libtool
 RUN apt-get install -y patchutils bc zlib1g-dev device-tree-compiler pkg-config libexpat-dev
+RUN apt-get install -y python python3
 
 # Set installation location
 ENV RISCV /install 
@@ -18,8 +19,11 @@ RUN git clone --recursive https://github.com/patricoferris/riscv-tools.git -b ca
 WORKDIR /riscv-gnu-toolchain 
 RUN ./configure --prefix=$RISCV
 RUN make linux -j4
+RUN make newlib -j4
 
 # Build tools (importantly Spike ISA sim) 
+ENV PATH="$RISCV/bin:${PATH}"
+RUN ls "$RISCV/bin"
 WORKDIR /riscv-tools 
 ENV RISCV /tools
 RUN ./build.sh
