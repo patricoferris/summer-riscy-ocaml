@@ -66,9 +66,11 @@ RUN apt-add-repository ppa:avsm/ppa
 RUN apt update 
 RUN apt install -y opam m4
 RUN opam init --disable-sandboxing --compiler=4.07.1 -y 
+RUN eval $(opam env)
 
 ENV RISCV /usr/local
 ENV LD_LIBRARY_PATH=$RISCV/lib
 ENV pk=$RISCV/riscv64-unknown-elf/bin/pk
 
+WORKDIR /
 ENTRYPOINT ["/bin/bash"]

@@ -20,7 +20,7 @@ docker run -it riscy
 git clone https://github.com/patricoferris/riscv-benchmarks
 cd riscv-benchmarks/src
 ocamlopt -o driver driver.ml
-./driver build-with-riscv
-spike /usr/local/riscv-unknown-elf/pk -s intfloatarray
+./driver build-static-riscv
+spike /usr/local/riscv64-unknown-elf/bin/pk -s intfloatarray.out
 ``` 
 
