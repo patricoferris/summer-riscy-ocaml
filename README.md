@@ -5,7 +5,8 @@ This Dockerfile creates an Ubuntu 18.04 environment for running OCaml in a RISC-
 
 - riscv-gnu-toolchain: the compiler with modified opcodes
 - riscv-tools: an assortment of tools, most importantly a modified ISA simulator, Spike
-- /riscv-ocaml/bin/ocamlopt: a modified ocaml cross-compiler for RISC-V
+- /riscv-ocaml/bin/ocamlopt: a modified OCaml cross-compiler for RISC-V
+- /og-riscv-ocaml/bin/ocamlopt: the unmodified OCaml cross-compiler for RISC-V
 - ocamlopt: standard ocaml compiler (4.07.01, x86) installed in an OPAM switch 
 
 Example Usage
@@ -19,6 +20,7 @@ docker run -it riscy
 
 git clone https://github.com/patricoferris/riscv-benchmarks
 cd riscv-benchmarks/src
+eval $(opam env)
 ocamlopt -o driver driver.ml
 ./driver build-static-riscv
 spike /usr/local/riscv64-unknown-elf/bin/pk -s intfloatarray.out

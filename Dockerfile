@@ -61,10 +61,19 @@ RUN make -j4 opt
 RUN cp /riscv-ocaml/bin/ocamlrun byterun
 RUN make install
 
+# Install unmodified cross-compiler for testing changes
+RUN git checkout fa5cf0d3e4c78678dfa62d6e12d943ea45b7b13b
+RUN make clean && ./configure -no-ocamldoc -no-debugger -prefix /og-riscv-ocaml && make -j4 world.opt && make install 
+ENV PATH="/og-riscv-ocaml/bin:${PATH}"
+RUN make clean && ./configure --target riscv64-unknown-linux-gnu -prefix /og-riscv-ocaml -no-ocamldoc -no-debugger -target-bindir /og-riscv-ocaml/bin && make -j4 world || /bin/true 
+RUN make -j4 opt
+RUN cp /og-riscv-ocaml/bin/ocamlrun byterun
+
 # Opam and x86 compiler
-RUN apt-add-repository ppa:avsm/ppa
+RUN apt-add-repository ppa:avsm/ppa -y
 RUN apt update 
-RUN apt install -y opam m4
+RUN apt install -y opam
+RUN opam --version
 RUN opam init --disable-sandboxing --compiler=4.07.1 -y 
 RUN eval $(opam env)
 
