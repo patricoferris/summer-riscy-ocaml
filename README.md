@@ -20,9 +20,9 @@ docker run -it riscy
 
 git clone https://github.com/patricoferris/riscv-benchmarks
 cd riscv-benchmarks/src
+opam install dune ppx_jane core
 eval $(opam env)
-ocamlopt -o driver driver.ml
-./driver build-static-riscv
+dune exec -- ./bench.exe build -c /riscv-ocaml/bin/ocamlopt -args "-ccopt -static" -v -asm
 spike /usr/local/riscv64-unknown-elf/bin/pk -s intfloatarray.out
 ``` 
 
