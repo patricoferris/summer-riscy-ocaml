@@ -19,13 +19,14 @@ RUN git clone --recursive https://github.com/patricoferris/riscv-tools.git -b ca
 
 # Checkout correct files 
 WORKDIR /riscv-gnu-toolchain/riscv-binutils
-RUN git checkout runtime-customisations
+RUN git checkout ocval
+RUN git pull
 RUN git log -n 1
 WORKDIR /riscv-tools/riscv-isa-sim
-RUN git checkout runtime-customisations
+RUN git checkout ocval
 RUN git log -n 1
 WORKDIR /riscv-tools/riscv-opcodes
-RUN git checkout runtime-customisations
+RUN git checkout ocval
 RUN git log -n 1
 
 # Build gcc
@@ -69,12 +70,12 @@ RUN git clone https://github.com/patricoferris/riscv-ocaml.git -b 4.07+cross+cus
 WORKDIR /riscv-ocaml
 
 # Checkout code before the inline assembly updates 
-RUN git pull
 RUN git checkout 88b3b40c87f7d2c239620a04bdf715ab3abdf7c3  
 RUN ./configure -no-ocamldoc -no-debugger -prefix /riscv-ocaml && make -j4 world.opt && make install 
 ENV PATH="/riscv-ocaml/bin:${PATH}"
 # Checkout the latest code with the inline assembly 
-RUN git checkout 1a3aad701bbf182aeb8c21d1b3f9f0769e30b725
+RUN git fetch 
+RUN git checkout inline-cii 
 RUN make clean && ./configure --target riscv64-unknown-linux-gnu -prefix /riscv-ocaml -no-ocamldoc -no-debugger -target-bindir /riscv-ocaml/bin && make -j4 world || /bin/true 
 RUN make -j4 opt
 RUN cp /riscv-ocaml/bin/ocamlrun byterun
@@ -84,7 +85,8 @@ RUN make clean
 WORKDIR /og-riscv-ocaml
 
 # Install unmodified cross-compiler for testing changes
-RUN git checkout fa5cf0d3e4c78678dfa62d6e12d943ea45b7b13b
+RUN git pull
+RUN git checkout o2-optimised 
 RUN ./configure -no-ocamldoc -no-debugger -prefix /og-riscv-ocaml && make -j4 world.opt && make install 
 ENV PATH="/og-riscv-ocaml/bin:${PATH}"
 RUN make clean && ./configure --target riscv64-unknown-linux-gnu -prefix /og-riscv-ocaml -no-ocamldoc -no-debugger -target-bindir /og-riscv-ocaml/bin && make -j4 world || /bin/true 
@@ -95,16 +97,15 @@ RUN make install
 # Clean up
 RUN make clean
 
-# Opam and x86 compiler
+# Opam and x86 compiler (with cross-compiling capabilities)
 RUN apt-add-repository ppa:avsm/ppa -y
 RUN apt update 
 RUN apt install -y opam
 RUN opam --version
-RUN opam init --disable-sandboxing --bare -y 
-#--compiler=4.07.1 
+RUN opam init --disable-sandboxing --compiler=4.07.0 -y 
 RUN eval $(opam env)
-
-#RUN opam install dune core -y 
+RUN opam repo add cross git+https://github.com/patricoferris/opam-cross-shakti.git
+RUN opam install dune core -y 
 
 WORKDIR /tmp
 RUN git clone https://github.com/patricoferris/riscv-benchmarks.git
